@@ -13,3 +13,8 @@
 .vs/
 .vscode/
 .idea/
+
+# Configuration files to ignore
+App.config
+appsettings.json
+*.local.config
