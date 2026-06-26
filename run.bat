@@ -5,7 +5,7 @@ echo ==============================================
 echo   Starting GARMENT SHOP POS Terminal System
 echo ==============================================
 echo.
-dotnet run --configuration Release
+dotnet run --project GarmentShopPos/GarmentShopPos.csproj --configuration Release
 if %errorlevel% neq 0 (
     echo.
     echo [ERROR] The application failed to launch.

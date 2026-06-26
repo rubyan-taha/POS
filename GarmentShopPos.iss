@@ -33,12 +33,12 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 [Files]
 ; Source path points to the directory where C# builds are published.
 ; We include all DLLs, executables, and config assets except appsettings.json, which is handled separately to prevent overwrite.
-Source: "D:\Code\project_POS\GARMENT_SHOP_POS\bin\Release\net10.0-windows\win-x64\publish\*"; ExcludeFiles: "appsettings.json"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "GarmentShopPos\bin\Release\net10.0-windows\win-x64\publish\*"; ExcludeFiles: "appsettings.json"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 ; CRITICAL UPDATE RULE:
 ; We copy appsettings.json only if it doesn't already exist on the target machine.
 ; This ensures that during an update, the customer's customized SQL Server connection string is NEVER overwritten!
-Source: "D:\Code\project_POS\GARMENT_SHOP_POS\bin\Release\net10.0-windows\win-x64\publish\appsettings.json"; DestDir: "{app}"; Flags: onlyifdoesntexist
+Source: "GarmentShopPos\bin\Release\net10.0-windows\win-x64\publish\appsettings.json"; DestDir: "{app}"; Flags: onlyifdoesntexist
 
 [Icons]
 Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
