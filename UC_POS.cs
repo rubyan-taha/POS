@@ -212,7 +212,7 @@ namespace GarmentShopPos
             btnGentsSection.ForeColor = Color.FromArgb(60, 60, 60);
             btnGentsSection.FlatAppearance.BorderSize = 1;
 
-            gbLadiesOptions.Visible = true;
+            gbLadiesOptions.Visible = false;
             LoadProducts();
         }
 
@@ -313,16 +313,12 @@ namespace GarmentShopPos
             }
             else
             {
-                string printStr = chkPrinted.Checked ? $"{cbPrintType.Text} Print" : "Plain";
+                string printStr = selectedProduct.IsPrinted ? $"{selectedProduct.PrintType} Print" : "Plain";
                 string embStr = "";
-                if (chkEmbroidered.Checked)
+                if (selectedProduct.IsEmbroidered)
                 {
-                    embStr = $", {cbEmbroideryType.Text} Embroidery";
-                    if (!decimal.TryParse(txtEmbCharge.Text.Trim(), out embroideryCharge))
-                    {
-                        MessageBox.Show("Please enter a valid embroidery charge.", "Invalid Input", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
-                    }
+                    embStr = $", {selectedProduct.EmbroideryType} Embroidery";
+                    embroideryCharge = selectedProduct.EmbroideryExtraCharge;
                 }
                 specs = $"{selectedProduct.SuitType} - {printStr}{embStr}";
             }
@@ -711,25 +707,7 @@ namespace GarmentShopPos
                                      lblProductDetails.Text = $"Price: Rs {selectedProduct.RetailPrice:N2}/meter\nStock: {selectedProduct.CurrentStock:N2} m";
                                  }
                                 
-                                if (selectedProduct.Section == "Ladies")
-                                {
-                                    gbLadiesOptions.Visible = true;
-                                    chkPrinted.Checked = selectedProduct.IsPrinted;
-                                    if (selectedProduct.IsPrinted)
-                                    {
-                                        cbPrintType.Text = selectedProduct.PrintType ?? "Digital";
-                                    }
-                                    chkEmbroidered.Checked = selectedProduct.IsEmbroidered;
-                                    if (selectedProduct.IsEmbroidered)
-                                    {
-                                        cbEmbroideryType.Text = selectedProduct.EmbroideryType ?? "Machine";
-                                        txtEmbCharge.Text = selectedProduct.EmbroideryExtraCharge.ToString("F2");
-                                    }
-                                }
-                                else
-                                {
-                                    gbLadiesOptions.Visible = false;
-                                }
+                                gbLadiesOptions.Visible = false;
 
                                  // Set default scanned quantity using helper
                                  numQty.Value = GetDefaultQuantityForProduct(selectedProduct);
@@ -1347,17 +1325,8 @@ namespace GarmentShopPos
                 numQty.Location = new Point(15, currentY);
                 currentY += numQty.Height + 15;
 
-                if (string.Equals(activeSection, "Gents", StringComparison.OrdinalIgnoreCase))
-                {
-                    gbLadiesOptions.Visible = false;
-                    btnAddToCart.Location = new Point(15, currentY);
-                }
-                else
-                {
-                    gbLadiesOptions.Visible = true;
-                    gbLadiesOptions.Location = new Point(15, currentY);
-                    btnAddToCart.Location = new Point(15, gbLadiesOptions.Bottom + 15);
-                }
+                gbLadiesOptions.Visible = false;
+                btnAddToCart.Location = new Point(15, currentY);
             }
             else
             {

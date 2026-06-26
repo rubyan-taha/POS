@@ -104,6 +104,9 @@ namespace GarmentShopPos
 
             ApplyLanguageTranslation();
 
+            // Wire TextChanged event to dynamically update labels if product type changes
+            txtFabricType.TextChanged += (s, ev) => UpdateLabelsForBox();
+
             if (_product.CurrentStock > 0)
             {
                 btnDelete.Enabled = false;
@@ -367,24 +370,22 @@ namespace GarmentShopPos
 
         private void UpdateLabelsForBox()
         {
-            if (_product == null) return;
             bool isUrdu = string.Equals(SessionManager.ShopLanguage, "Urdu", StringComparison.OrdinalIgnoreCase);
-            bool isBox = (_product.FabricType ?? "").IndexOf("box", StringComparison.OrdinalIgnoreCase) >= 0;
+            string fType = txtFabricType.Text;
+            bool isBox = (fType ?? "").IndexOf("box", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                         (fType ?? "").IndexOf("باکس", StringComparison.OrdinalIgnoreCase) >= 0;
 
-            if (isBox)
+            if (isUrdu)
             {
-                if (isUrdu)
-                {
-                    lblWholesale.Text = "تھوک قیمت: *";
-                    lblRetail.Text = "پرچون قیمت: *";
-                    lblCurrentStock.Text = "موجودہ اسٹاک (باکس): *";
-                }
-                else
-                {
-                    lblWholesale.Text = "Wholesale Price: *";
-                    lblRetail.Text = "Retail Price: *";
-                    lblCurrentStock.Text = "Current Stock (boxes): *";
-                }
+                lblWholesale.Text = isBox ? "تھوک قیمت: *" : "تھوک قیمت (ہول سیل): *";
+                lblRetail.Text = isBox ? "پرچون قیمت: *" : "پرچون قیمت (میٹر): *";
+                lblCurrentStock.Text = isBox ? "موجودہ اسٹاک (باکس): *" : "موجودہ اسٹاک (میٹر): *";
+            }
+            else
+            {
+                lblWholesale.Text = isBox ? "Wholesale Price: *" : "Wholesale Price (per meter): *";
+                lblRetail.Text = isBox ? "Retail Price: *" : "Retail Price (per meter): *";
+                lblCurrentStock.Text = isBox ? "Current Stock (boxes): *" : "Current Stock (meters): *";
             }
         }
     }

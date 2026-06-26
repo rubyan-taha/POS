@@ -28,20 +28,25 @@ namespace GarmentShopPos.Models
                 bool isUrdu = string.Equals(SessionManager.ShopLanguage, "Urdu", System.StringComparison.OrdinalIgnoreCase);
                 string fabric = isUrdu ? TranslationHelper.TranslateFabric(FabricType, Section) : FabricType;
                 
+                bool isBox = (FabricType ?? "").IndexOf("box", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                             (FabricType ?? "").IndexOf("باکس", System.StringComparison.OrdinalIgnoreCase) >= 0;
+
                 if (Section == "Gents")
                 {
                     string material = isUrdu ? TranslationHelper.TranslateMaterial(FabricMaterial) : FabricMaterial;
                     string col = isUrdu ? TranslationHelper.TranslateColor(Color) : Color;
-                    string unit = isUrdu ? "میٹر" : "m";
-                    return $"{fabric} ({material} - {col}) - Rs {RetailPrice:#,##0.00}/{unit} - Stock: {CurrentStock:N1}";
+                    string unit = isUrdu ? (isBox ? "باکس" : "میٹر") : (isBox ? "box" : "m");
+                    string stockStr = isBox ? $"{CurrentStock:N0}" : $"{CurrentStock:N1}";
+                    return $"{fabric} ({material} - {col}) - Rs {RetailPrice:#,##0.00}/{unit} - Stock: {stockStr}";
                 }
                 else
                 {
                     string suit = isUrdu ? TranslationHelper.TranslateSuitType(SuitType) : SuitType;
                     string print = IsPrinted ? (isUrdu ? $" - پرنٹڈ ({TranslationHelper.TranslatePrintType(PrintType)})" : $" - Printed ({PrintType})") : "";
                     string embroidery = IsEmbroidered ? (isUrdu ? $" - کڑھائی ({TranslationHelper.TranslateEmbroideryType(EmbroideryType)})" : $" - Embroidered ({EmbroideryType})") : "";
-                    string unit = isUrdu ? "میٹر" : "m";
-                    return $"{fabric} ({suit}{print}{embroidery}) - Rs {RetailPrice:#,##0.00}/{unit} - Stock: {CurrentStock:N1}";
+                    string unit = isUrdu ? (isBox ? "باکس" : "میٹر") : (isBox ? "box" : "m");
+                    string stockStr = isBox ? $"{CurrentStock:N0}" : $"{CurrentStock:N1}";
+                    return $"{fabric} ({suit}{print}{embroidery}) - Rs {RetailPrice:#,##0.00}/{unit} - Stock: {stockStr}";
                 }
             }
         }
