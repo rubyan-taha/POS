@@ -256,6 +256,24 @@ namespace GarmentShopPos
                     dgvStock.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.White;
                     dgvStock.Rows[e.RowIndex].DefaultCellStyle.ForeColor = Color.Black;
                 }
+
+                // Dynamic formatting for CurrentStock and ReorderPoint if they are box items
+                bool isBox = (prod.FabricType ?? "").IndexOf("box", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                             (prod.FabricType ?? "").IndexOf("باکس", StringComparison.OrdinalIgnoreCase) >= 0;
+
+                if (dgvStock.Columns[e.ColumnIndex].Name == "CurrentStock" || dgvStock.Columns[e.ColumnIndex].Name == "ReorderPoint")
+                {
+                    if (isBox)
+                    {
+                        e.Value = string.Format("{0:N0}", e.Value);
+                        e.FormattingApplied = true;
+                    }
+                    else
+                    {
+                        e.Value = string.Format("{0:N2}", e.Value);
+                        e.FormattingApplied = true;
+                    }
+                }
             }
         }
 

@@ -99,7 +99,16 @@ namespace GarmentShopPos
             selectedRProduct = cbRProduct.SelectedItem as Product;
             if (selectedRProduct != null)
             {
-                lblRSystemQtyVal.Text = $"{selectedRProduct.CurrentStock:N2} yards";
+                bool isUrdu = string.Equals(SessionManager.ShopLanguage, "Urdu", StringComparison.OrdinalIgnoreCase);
+                bool isBox = (selectedRProduct.FabricType ?? "").IndexOf("box", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                             (selectedRProduct.FabricType ?? "").IndexOf("باکس", StringComparison.OrdinalIgnoreCase) >= 0;
+
+                string unit = isUrdu ? (isBox ? "باکس" : "میٹر/گز") : (isBox ? "boxes" : "yards");
+                lblRSystemQtyVal.Text = isBox ? $"{selectedRProduct.CurrentStock:N0} {unit}" : $"{selectedRProduct.CurrentStock:N2} {unit}";
+
+                lblRSystemQty.Text = isUrdu ? (isBox ? "سسٹم میں موجود باکس:" : "سسٹم میں موجود میٹر/گز:") : (isBox ? "Boxes in System:" : "Yards in System:");
+                lblRAdjustmentQty.Text = isUrdu ? (isBox ? "اصلاحی مقدار (باکس): *" : "اصلاحی مقدار (تبدیلی): *") : (isBox ? "Adjustment Boxes (Count):*" : "Adjustment Yards (Count):*");
+
                 UpdateReconciliationPreview();
             }
         }
@@ -109,7 +118,15 @@ namespace GarmentShopPos
             selectedWProduct = cbWProduct.SelectedItem as Product;
             if (selectedWProduct != null)
             {
-                lblWSysQtyVal.Text = $"{selectedWProduct.CurrentStock:N2} yards";
+                bool isUrdu = string.Equals(SessionManager.ShopLanguage, "Urdu", StringComparison.OrdinalIgnoreCase);
+                bool isBox = (selectedWProduct.FabricType ?? "").IndexOf("box", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                             (selectedWProduct.FabricType ?? "").IndexOf("باکس", StringComparison.OrdinalIgnoreCase) >= 0;
+
+                string unit = isUrdu ? (isBox ? "باکس" : "میٹر/گز") : (isBox ? "boxes" : "yards");
+                lblWSysQtyVal.Text = isBox ? $"{selectedWProduct.CurrentStock:N0} {unit}" : $"{selectedWProduct.CurrentStock:N2} {unit}";
+
+                lblWSysQty.Text = isUrdu ? (isBox ? "سسٹم میں موجود باکس:" : "سسٹم میں موجود میٹر/گز:") : (isBox ? "Boxes in System:" : "Yards in System:");
+                lblWQty.Text = isUrdu ? (isBox ? "ضائع یا خراب شدہ باکس: *" : "ضائع یا خراب شدہ میٹر/گز: *") : (isBox ? "Damaged / Lost Boxes:*" : "Damaged / Lost Yards:*");
             }
         }
 
@@ -133,6 +150,10 @@ namespace GarmentShopPos
             if (selectedRProduct == null) return;
 
             decimal currentStock = selectedRProduct.CurrentStock;
+            bool isUrdu = string.Equals(SessionManager.ShopLanguage, "Urdu", StringComparison.OrdinalIgnoreCase);
+            bool isBox = (selectedRProduct.FabricType ?? "").IndexOf("box", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                         (selectedRProduct.FabricType ?? "").IndexOf("باکس", StringComparison.OrdinalIgnoreCase) >= 0;
+            string unit = isUrdu ? (isBox ? "باکس" : "میٹر/گز") : (isBox ? "boxes" : "yards");
             
             if (decimal.TryParse(txtRAdjustmentQty.Text.Trim(), out decimal adjustment) && adjustment >= 0)
             {
@@ -140,25 +161,25 @@ namespace GarmentShopPos
                 if (rbExtra.Checked)
                 {
                     newStock = currentStock + adjustment;
-                    lblRNewStockVal.Text = $"{newStock:N2} yards";
+                    lblRNewStockVal.Text = isBox ? $"{newStock:N0} {unit}" : $"{newStock:N2} {unit}";
                     lblRNewStockVal.ForeColor = System.Drawing.Color.FromArgb(76, 175, 80); // Surplus green
                 }
                 else if (rbDiff.Checked)
                 {
                     newStock = currentStock - adjustment;
                     if (newStock < 0) newStock = 0;
-                    lblRNewStockVal.Text = $"{newStock:N2} yards";
+                    lblRNewStockVal.Text = isBox ? $"{newStock:N0} {unit}" : $"{newStock:N2} {unit}";
                     lblRNewStockVal.ForeColor = System.Drawing.Color.FromArgb(219, 68, 85); // Shortage red
                 }
                 else
                 {
-                    lblRNewStockVal.Text = $"{newStock:N2} yards";
+                    lblRNewStockVal.Text = isBox ? $"{newStock:N0} {unit}" : $"{newStock:N2} {unit}";
                     lblRNewStockVal.ForeColor = System.Drawing.Color.Black;
                 }
             }
             else
             {
-                lblRNewStockVal.Text = $"{currentStock:N2} yards";
+                lblRNewStockVal.Text = isBox ? $"{currentStock:N0} {unit}" : $"{currentStock:N2} {unit}";
                 lblRNewStockVal.ForeColor = System.Drawing.Color.Black;
             }
         }
@@ -167,21 +188,32 @@ namespace GarmentShopPos
         {
             if (selectedRProduct == null) return;
 
+            bool isUrdu = string.Equals(SessionManager.ShopLanguage, "Urdu", StringComparison.OrdinalIgnoreCase);
+
             if (!decimal.TryParse(txtRAdjustmentQty.Text.Trim(), out decimal adjustment) || adjustment < 0)
             {
-                MessageBox.Show("Please enter a valid adjustment quantity.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(isUrdu ? "براہ کرم درست اصلاحی مقدار درج کریں۔" : "Please enter a valid adjustment quantity.", isUrdu ? "تصدیقی غلطی" : "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             if (adjustment == 0)
             {
-                MessageBox.Show("Adjustment quantity is zero. No change will be made.", "No Adjustment", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(isUrdu ? "اصلاحی مقدار صفر ہے۔ کوئی تبدیلی نہیں کی جائے گی۔" : "Adjustment quantity is zero. No change will be made.", isUrdu ? "کوئی تبدیلی نہیں" : "No Adjustment", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            bool isBox = (selectedRProduct.FabricType ?? "").IndexOf("box", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                         (selectedRProduct.FabricType ?? "").IndexOf("باکس", StringComparison.OrdinalIgnoreCase) >= 0;
+
+            if (isBox && adjustment % 1 != 0)
+            {
+                MessageBox.Show(isUrdu ? "باکس آئٹم کے لیے مقدار صرف مکمل عدد ہونی چاہیے۔" : "For box items, quantity must be a whole number.", isUrdu ? "تصدیقی غلطی" : "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             if (!rbExtra.Checked && !rbDiff.Checked)
             {
-                MessageBox.Show("Please select whether this is a Surplus (+) or Shortage (-).", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(isUrdu ? "براہ کرم منتخب کریں کہ آیا یہ سرپلس (+) ہے یا شارٹیج (-)" : "Please select whether this is a Surplus (+) or Shortage (-).", isUrdu ? "تصدیقی غلطی" : "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -197,13 +229,23 @@ namespace GarmentShopPos
                 newStock = selectedRProduct.CurrentStock - adjustment;
                 if (newStock < 0)
                 {
-                    MessageBox.Show($"Adjustment exceeds current stock level ({selectedRProduct.CurrentStock:N2} yards). Adjusted stock cannot be negative.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    string unitName = isUrdu ? (isBox ? "باکس" : "میٹر/گز") : (isBox ? "boxes" : "yards");
+                    string stockFormatted = isBox ? $"{selectedRProduct.CurrentStock:N0}" : $"{selectedRProduct.CurrentStock:N2}";
+                    MessageBox.Show(isUrdu ? $"اصلاحی مقدار موجودہ اسٹاک لیول ({stockFormatted} {unitName}) سے زیادہ ہے۔ اسٹاک منفی نہیں ہو سکتا۔" : $"Adjustment exceeds current stock level ({stockFormatted} {unitName}). Adjusted stock cannot be negative.", isUrdu ? "تصدیقی غلطی" : "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
                 diff = -adjustment;
             }
 
-            var confirm = MessageBox.Show($"Apply adjustment of {(rbExtra.Checked ? "+" : "-")}{adjustment:N2} yards to '{selectedRProduct.ShortName}'?\nNew stock level will be {newStock:N2} yards.", "Confirm Adjustment", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            string unit = isUrdu ? (isBox ? "باکس" : "میٹر/گز") : (isBox ? "boxes" : "yards");
+            string formattedAdjustment = isBox ? $"{adjustment:N0}" : $"{adjustment:N2}";
+            string formattedNewStock = isBox ? $"{newStock:N0}" : $"{newStock:N2}";
+
+            string confirmMsg = isUrdu 
+                ? $"کیا آپ '{selectedRProduct.ShortName}' میں {(rbExtra.Checked ? "+" : "-")}{formattedAdjustment} {unit} کی اصلاح لاگو کرنا چاہتے ہیں؟\nنیا اسٹاک لیول {formattedNewStock} {unit} ہو جائے گا۔"
+                : $"Apply adjustment of {(rbExtra.Checked ? "+" : "-")}{formattedAdjustment} {unit} to '{selectedRProduct.ShortName}'?\nNew stock level will be {formattedNewStock} {unit}.";
+
+            var confirm = MessageBox.Show(confirmMsg, isUrdu ? "اصلاح کی تصدیق کریں" : "Confirm Adjustment", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (confirm == DialogResult.No) return;
 
             int userId = SessionManager.CurrentUser != null ? SessionManager.CurrentUser.Id : 1;
@@ -257,7 +299,7 @@ namespace GarmentShopPos
                         }
 
                         transaction.Commit();
-                        MessageBox.Show("Stock adjusted successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show(isUrdu ? "اسٹاک کامیابی سے اپ ڈیٹ ہو گیا ہے!" : "Stock adjusted successfully!", isUrdu ? "کامیابی" : "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         
                         txtRAdjustmentQty.Clear();
                         rbExtra.Checked = false;
@@ -268,7 +310,7 @@ namespace GarmentShopPos
                     catch (Exception ex)
                     {
                         transaction.Rollback();
-                        MessageBox.Show($"Failed to save stock update:\n{ex.Message}", "Error Updating Stock", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show(isUrdu ? $"اسٹاک اپ ڈیٹ کرنے میں ناکامی:\n{ex.Message}" : $"Failed to save stock update:\n{ex.Message}", isUrdu ? "خرابی" : "Error Updating Stock", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }
@@ -277,21 +319,42 @@ namespace GarmentShopPos
         private void btnLogWastage_Click(object sender, EventArgs e)
         {
             if (selectedWProduct == null) return;
+            
+            bool isUrdu = string.Equals(SessionManager.ShopLanguage, "Urdu", StringComparison.OrdinalIgnoreCase);
+            bool isBox = (selectedWProduct.FabricType ?? "").IndexOf("box", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                         (selectedWProduct.FabricType ?? "").IndexOf("باکس", StringComparison.OrdinalIgnoreCase) >= 0;
 
             if (!decimal.TryParse(txtWQty.Text.Trim(), out decimal qty) || qty <= 0)
             {
-                MessageBox.Show("Please enter a valid number of yards removed.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(isUrdu ? "براہ کرم خارج کی گئی درست مقدار درج کریں۔" : "Please enter a valid number of units removed.", isUrdu ? "تصدیق" : "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
+            if (isBox && qty % 1 != 0)
+            {
+                MessageBox.Show(isUrdu ? "باکس آئٹم کے لیے مقدار صرف مکمل عدد ہونی چاہیے۔" : "For box items, quantity must be a whole number.", isUrdu ? "تصدیقی غلطی" : "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            string unit = isUrdu ? (isBox ? "باکس" : "میٹر/گز") : (isBox ? "boxes" : "yards");
+            string formattedQty = isBox ? $"{qty:N0}" : $"{qty:N2}";
+            string formattedCurrentStock = isBox ? $"{selectedWProduct.CurrentStock:N0}" : $"{selectedWProduct.CurrentStock:N2}";
+
             if (qty > selectedWProduct.CurrentStock)
             {
-                MessageBox.Show($"The yards removed ({qty:N2}) cannot be more than what we have in system ({selectedWProduct.CurrentStock:N2}).", "Not Enough Stock", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                string lowStockMsg = isUrdu 
+                    ? $"خارج کی گئی مقدار ({formattedQty} {unit}) سسٹم میں موجود مقدار ({formattedCurrentStock} {unit}) سے زیادہ نہیں ہوسکتی۔"
+                    : $"The quantity removed ({formattedQty} {unit}) cannot be more than what we have in system ({formattedCurrentStock} {unit}).";
+                MessageBox.Show(lowStockMsg, isUrdu ? "کافی اسٹاک نہیں ہے" : "Not Enough Stock", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             string reason = cbWReason.Text;
-            var confirm = MessageBox.Show($"Remove {qty:N2} yards from '{selectedWProduct.ShortName}' because it is '{reason}'?", "Confirm Removal", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            string confirmMsg = isUrdu
+                ? $"کیا آپ '{selectedWProduct.ShortName}' سے {formattedQty} {unit} خارج کرنا چاہتے ہیں کیونکہ یہ '{reason}' ہے؟"
+                : $"Remove {formattedQty} {unit} from '{selectedWProduct.ShortName}' because it is '{reason}'?";
+
+            var confirm = MessageBox.Show(confirmMsg, isUrdu ? "اخراج کی تصدیق کریں" : "Confirm Removal", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
             if (confirm == DialogResult.No) return;
 
             int userId = SessionManager.CurrentUser != null ? SessionManager.CurrentUser.Id : 1;
@@ -327,7 +390,7 @@ namespace GarmentShopPos
                         }
 
                         transaction.Commit();
-                        MessageBox.Show("Damaged/Lost stock has been recorded and removed from system.", "Stock Removed", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show(isUrdu ? "نقصان دہ/ضائع شدہ اسٹاک درج کر کے سسٹم سے نکال دیا گیا ہے۔" : "Damaged/Lost stock has been recorded and removed from system.", isUrdu ? "اسٹاک خارج ہو گیا" : "Stock Removed", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         
                         txtWQty.Clear();
                         LoadProducts();
@@ -336,7 +399,7 @@ namespace GarmentShopPos
                     catch (Exception ex)
                     {
                         transaction.Rollback();
-                        MessageBox.Show($"Failed to record damaged stock:\n{ex.Message}", "Error Saving", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show(isUrdu ? $"نقصان دہ اسٹاک درج کرنے میں ناکامی:\n{ex.Message}" : $"Failed to record damaged stock:\n{ex.Message}", isUrdu ? "خرابی" : "Error Saving", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }
