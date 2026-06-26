@@ -27,40 +27,8 @@ The project has been fully migrated to use SQL Server Express with clean separat
 
 ---
 
-## 🔑 Login Credentials & Security
 
-### Removal of Autofills
-To resolve security concerns, the login form loads with **completely blank input fields** for usernames, passwords, and passcodes. Users must input their credentials manually.
 
-### Initial Seed Accounts
-The database automatically seeds standard default users for initial setup:
-
-| Username | Password | Role | Description |
-|---|---|---|---|
-| **admin** | `admin` | Admin | Full Access (All features, reports, settings, user management) |
-| **employee** | `employee` | Employee | POS (Make Sale) and Stock Viewer only |
-
-*Note: Any legacy accounts (`Cashier`, `Manager`, `Storekeeper`) in existing databases are automatically migrated to the `Employee` role during database initialization.*
-
----
-
-## ⚙️ How to Run & Verify
-
-1. **SQL Server Express**: Ensure your local SQL Server Express instance is running (the default instance name is `localhost\SQLEXPRESS`).
-2. **Appsettings**: Verify the connection string in [appsettings.json](file:///D:/Code/project_POS/GARMENT_SHOP_POS/appsettings.json):
-   ```json
-   {
-     "ConnectionStrings": {
-       "DefaultConnection": "Server=localhost\\SQLEXPRESS;Database=garment_shop_pos;Trusted_Connection=True;TrustServerCertificate=True;"
-     }
-   }
-   ```
-3. **Execution**: Open a terminal inside `D:\Code\project_POS\GARMENT_SHOP_POS` and run:
-   ```powershell
-   dotnet run
-   ```
-
----
 
 ## 🔄 Recent Enhancements & UI/UX Upgrades
 
